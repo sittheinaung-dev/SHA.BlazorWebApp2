@@ -1,0 +1,166 @@
+@page "/tasks"
+@using SHA.BlazorWebApp2.Models
+@using SHA.BlazorWebApp2.Services
+@inject TodoService TodoService
+
+<div class="animate-fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Task Manager</h1>
+        <button class="btn-premium" @onclick="ShowAddModal">
+            <i class="bi bi-plus-lg"></i> Add New Task
+        </button>
+    </div>
+
+    @if (items == null)
+    {
+        <div class="loading-progress">
+            <svg>
+                <circle r="40%" cx="50%" cy="50%" />
+                <circle r="40%" cx="50%" cy="50%" />
+            </svg>
+            <div class="loading-progress-text"></div>
+        </div>
+    }
+    else if (!items.Any())
+    {
+        <div class="glass-card text-center py-5">
+            <h3 class="text-muted">No tasks yet. Start by adding one!</h3>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var item in items)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="glass-card h-100 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h3 class="mb-0 @(item.IsCompleted ? "text-decoration-line-through opacity-50" : "")" 
+                                style="background: none; -webkit-text-fill-color: var(--text-main); font-size: 1.25rem;">
+                                @item.Title
+                            </h3>
+                            <input type="checkbox" class="form-check-input" checked="@item.IsCompleted" @onchange="() => ToggleComplete(item)" />
+                        </div>
+                        <p class="text-muted flex-grow-1 @(item.IsCompleted ? "opacity-50" : "")">
+                            @item.Description
+                        </p>
+                        <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                            <span class="text-muted small">@item.CreatedAt.ToShortDateString()</span>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-info" @onclick="() => EditItem(item)" style="border-radius: 0.5rem; padding: 0.4rem 0.8rem;">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn-danger-premium" @onclick="() => DeleteItem(item.Id)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@if (showModal)
+{
+    <div class="modal fade show d-block" style="background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glass-card p-0" style="background: var(--bg-dark); border: 1px solid var(--border);">
+                <div class="modal-header border-0 p-4">
+                    <h2 class="modal-title m-0">@(isEditing ? "Edit Task" : "New Task")</h2>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body p-4 pt-0">
+                    <div class="mb-4">
+                        <label class="form-label text-muted small text-uppercase fw-bold">Title</label>
+                        <input type="text" class="input-premium" @bind="currentItem.Title" placeholder="What needs to be done?" @bind:event="oninput" />
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label text-muted small text-uppercase fw-bold">Description</label>
+                        <textarea class="input-premium" @bind="currentItem.Description" rows="3" placeholder="Add some details..." @bind:event="oninput"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 p-4 pt-0 d-flex justify-content-end gap-3">
+                    <button class="btn btn-link text-muted text-decoration-none" @onclick="CloseModal">Cancel</button>
+                    <button class="btn-premium" @onclick="SaveTask" disabled="@(string.IsNullOrWhiteSpace(currentItem.Title))">
+                        @(isEditing ? "Update Task" : "Create Task")
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<TodoItem>? items;
+    private bool showModal;
+    private bool isEditing;
+    private TodoItem currentItem = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadItems();
+    }
+
+    private async Task LoadItems()
+    {
+        items = await TodoService.GetItemsAsync();
+    }
+
+    private void ShowAddModal()
+    {
+        currentItem = new TodoItem();
+        isEditing = false;
+        showModal = true;
+    }
+
+    private void EditItem(TodoItem item)
+    {
+        currentItem = new TodoItem 
+        { 
+            Id = item.Id, 
+            Title = item.Title, 
+            Description = item.Description, 
+            IsCompleted = item.IsCompleted,
+            CreatedAt = item.CreatedAt
+        };
+        isEditing = true;
+        showModal = true;
+    }
+
+    private async Task SaveTask()
+    {
+        if (string.IsNullOrWhiteSpace(currentItem.Title)) return;
+
+        if (isEditing)
+        {
+            await TodoService.UpdateItemAsync(currentItem);
+        }
+        else
+        {
+            await TodoService.AddItemAsync(currentItem);
+        }
+
+        showModal = false;
+        await LoadItems();
+    }
+
+    private async Task DeleteItem(Guid id)
+    {
+        await TodoService.DeleteItemAsync(id);
+        await LoadItems();
+    }
+
+    private async Task ToggleComplete(TodoItem item)
+    {
+        item.IsCompleted = !item.IsCompleted;
+        await TodoService.UpdateItemAsync(item);
+        await LoadItems();
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+    }
+}

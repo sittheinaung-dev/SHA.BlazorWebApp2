@@ -1,31 +1,100 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">SHA.BlazorWebApp2</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+<div class="sidebar-header p-4">
+    <a class="navbar-brand d-flex align-items-center" href="">
+        <div class="logo-circle me-2"></div>
+        <span class="brand-text">SHA BLAZOR</span>
+    </a>
+</div>
+
+<div class="nav-scrollable flex-grow-1" @onclick="ToggleNavMenu">
+    <nav class="flex-column py-3">
+        <NavLink class="nav-link-premium" href="" Match="NavLinkMatch.All">
+            <i class="bi bi-house-door"></i> Dashboard
+        </NavLink>
+        <NavLink class="nav-link-premium" href="tasks">
+            <i class="bi bi-check2-square"></i> Task Manager
+        </NavLink>
+        <NavLink class="nav-link-premium" href="counter">
+            <i class="bi bi-plus-square"></i> Counter
+        </NavLink>
+        <NavLink class="nav-link-premium" href="weather">
+            <i class="bi bi-cloud-sun"></i> Weather
+        </NavLink>
+    </nav>
+</div>
+
+<div class="sidebar-footer p-4 border-top">
+    <div class="d-flex align-items-center">
+        <div class="avatar me-2">JS</div>
+        <div class="user-info">
+            <div class="user-name">John Smith</div>
+            <div class="user-status text-muted small">Pro Account</div>
+        </div>
     </div>
 </div>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-    </nav>
-</div>
+<style>
+    .sidebar-header {
+        border-bottom: 1px solid var(--border);
+    }
+
+    .brand-text {
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        background: linear-gradient(to right, #818cf8, #c084fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .logo-circle {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), #a855f7);
+    }
+
+    .nav-link-premium {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .nav-link-premium:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-main);
+    }
+
+    .nav-link-premium.active {
+        background: rgba(99, 102, 241, 0.1);
+        color: var(--primary);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .avatar {
+        width: 32px;
+        height: 32px;
+        background: #334155;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.75rem;
+    }
+
+    .user-name {
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .sidebar-footer {
+        border-top: 1px solid var(--border);
+    }
+</style>
 
 @code {
     private bool collapseNavMenu = true;
