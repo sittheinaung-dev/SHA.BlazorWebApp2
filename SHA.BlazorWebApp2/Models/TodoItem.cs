@@ -6,7 +6,7 @@ public class TodoItem
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     
-    [Required]
+    [Required] 
     public string Title { get; set; } = string.Empty;
     
     public string Description { get; set; } = string.Empty;
